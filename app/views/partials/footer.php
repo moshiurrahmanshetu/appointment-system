@@ -1,6 +1,6 @@
-<footer class="mt-auto py-3 bg-light border-top">
+<footer>
     <div class="container-fluid">
-        <div class="row">
+        <div class="row align-items-center">
             <div class="col-md-6">
                 <p class="text-muted mb-0">
                     &copy; <?= date('Y') ?> <?= config('name') ?>. All rights reserved.
@@ -8,7 +8,7 @@
             </div>
             <div class="col-md-6 text-md-end">
                 <p class="text-muted mb-0">
-                    Version <?= config('version') ?>
+                    <small>Version <?= config('version') ?></small>
                 </p>
             </div>
         </div>

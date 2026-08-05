@@ -19,6 +19,11 @@ class ProfileController extends Controller
     
     public function show()
     {
+        // Check permission
+        if (!can('profile.view')) {
+            abort(403, 'You do not have permission to view profiles.');
+        }
+        
         $user = Session::get('user');
         $fullUser = $this->userModel->find($user['id']);
         $role = $this->userModel->getRole($user['id']);
@@ -35,6 +40,11 @@ class ProfileController extends Controller
     
     public function edit()
     {
+        // Check permission
+        if (!can('profile.edit')) {
+            abort(403, 'You do not have permission to edit profiles.');
+        }
+        
         $user = Session::get('user');
         $fullUser = $this->userModel->find($user['id']);
         
@@ -49,6 +59,11 @@ class ProfileController extends Controller
     
     public function update()
     {
+        // Check permission
+        if (!can('profile.edit')) {
+            abort(403, 'You do not have permission to edit profiles.');
+        }
+        
         // Validate CSRF token
         if (!Csrf::checkRequest()) {
             Session::setFlash('error', 'Invalid request. Please try again.');
@@ -99,6 +114,11 @@ class ProfileController extends Controller
     
     public function showChangePassword()
     {
+        // Check permission
+        if (!can('profile.change_password')) {
+            abort(403, 'You do not have permission to change passwords.');
+        }
+        
         $data = [
             'title' => 'Change Password - ' . config('name'),
             'csrf_token' => Csrf::getToken()
@@ -109,6 +129,11 @@ class ProfileController extends Controller
     
     public function changePassword()
     {
+        // Check permission
+        if (!can('profile.change_password')) {
+            abort(403, 'You do not have permission to change passwords.');
+        }
+        
         // Validate CSRF token
         if (!Csrf::checkRequest()) {
             Session::setFlash('error', 'Invalid request. Please try again.');

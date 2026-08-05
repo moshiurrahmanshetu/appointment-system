@@ -1,5 +1,6 @@
 <?php if (has_flash('success')): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
         <?= e(flash('success')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
@@ -7,81 +8,82 @@
 
 <?php if (has_flash('error')): ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
         <?= e(flash('error')) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Dashboard</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-        </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-            <i class="bi bi-calendar"></i>
-            This week
-        </button>
-    </div>
+<div class="page-header mb-4">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="text-muted">Welcome back, <?= e($user['full_name']) ?>! (<?= e($user['role']['name']) ?>)</p>
 </div>
 
+<!-- Permission-based Dashboard Cards -->
 <div class="row">
+    <?php if (can('patients.view')): ?>
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-primary">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="card-title">Total Patients</h5>
-                        <h2 class="display-4">0</h2>
+                        <h5 class="card-title opacity-75">Total Patients</h5>
+                        <h2 class="display-4 fw-bold">0</h2>
                     </div>
                     <i class="bi bi-people fs-1 opacity-50"></i>
                 </div>
             </div>
         </div>
     </div>
+    <?php endif; ?>
     
+    <?php if (can('appointments.view')): ?>
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-success">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="card-title">Appointments Today</h5>
-                        <h2 class="display-4">0</h2>
+                        <h5 class="card-title opacity-75">Appointments Today</h5>
+                        <h2 class="display-4 fw-bold">0</h2>
                     </div>
                     <i class="bi bi-calendar-check fs-1 opacity-50"></i>
                 </div>
             </div>
         </div>
     </div>
+    <?php endif; ?>
     
+    <?php if (can('queue.view')): ?>
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-warning">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="card-title">In Queue</h5>
-                        <h2 class="display-4">0</h2>
+                        <h5 class="card-title opacity-75">In Queue</h5>
+                        <h2 class="display-4 fw-bold">0</h2>
                     </div>
                     <i class="bi bi-list-ol fs-1 opacity-50"></i>
                 </div>
             </div>
         </div>
     </div>
+    <?php endif; ?>
     
+    <?php if (can('users.view')): ?>
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-info">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="card-title">Total Users</h5>
-                        <h2 class="display-4">1</h2>
+                        <h5 class="card-title opacity-75">Total Users</h5>
+                        <h2 class="display-4 fw-bold">1</h2>
                     </div>
                     <i class="bi bi-person-badge fs-1 opacity-50"></i>
                 </div>
             </div>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 
 <div class="row">
@@ -91,10 +93,10 @@
                 <h5 class="card-title mb-0">Recent Activity</h5>
             </div>
             <div class="card-body">
-                <p class="text-muted text-center py-5">
-                    <i class="bi bi-clock-history fs-1 d-block mb-3"></i>
-                    No recent activity to display
-                </p>
+                <div class="text-center py-5">
+                    <i class="bi bi-clock-history text-muted fs-1 d-block mb-3"></i>
+                    <p class="text-muted">No recent activity to display</p>
+                </div>
             </div>
         </div>
     </div>
@@ -106,18 +108,29 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
+                    <?php if (can('appointments.create')): ?>
                     <button class="btn btn-outline-primary" disabled>
                         <i class="bi bi-plus-circle me-2"></i>New Appointment
                     </button>
+                    <?php endif; ?>
+                    
+                    <?php if (can('patients.create')): ?>
                     <button class="btn btn-outline-success" disabled>
                         <i class="bi bi-person-plus me-2"></i>Add Patient
                     </button>
+                    <?php endif; ?>
+                    
+                    <?php if (can('reports.view')): ?>
                     <button class="btn btn-outline-info" disabled>
                         <i class="bi bi-clipboard-data me-2"></i>View Reports
                     </button>
+                    <?php endif; ?>
+                    
+                    <?php if (can('settings.edit')): ?>
                     <button class="btn btn-outline-secondary" disabled>
                         <i class="bi bi-gear me-2"></i>Settings
                     </button>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -155,12 +168,12 @@
                                 <td><?= e($user['full_name']) ?></td>
                             </tr>
                             <tr>
-                                <th>User ID:</th>
-                                <td><?= e($user['user_id']) ?></td>
+                                <th>Role:</th>
+                                <td><?= e($user['role']['name']) ?></td>
                             </tr>
                             <tr>
-                                <th>Timezone:</th>
-                                <td><?= config('timezone') ?></td>
+                                <th>Permissions:</th>
+                                <td><?= count($user['permissions']) ?> permissions</td>
                             </tr>
                         </table>
                     </div>

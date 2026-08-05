@@ -1,0 +1,26 @@
+-- Patients table for Phase 4 Patient Management
+CREATE TABLE IF NOT EXISTS `patients` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `patient_code` VARCHAR(20) NOT NULL UNIQUE,
+    `user_id` INT UNSIGNED NULL,
+    `full_name` VARCHAR(100) NOT NULL,
+    `phone` VARCHAR(20) NOT NULL UNIQUE,
+    `gender` ENUM('male', 'female', 'other') NOT NULL,
+    `dob` DATE NOT NULL,
+    `blood_group` ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-') NULL,
+    `address` TEXT NULL,
+    `emergency_contact` VARCHAR(100) NULL,
+    `emergency_phone` VARCHAR(20) NULL,
+    `photo` VARCHAR(255) NULL,
+    `status` ENUM('active', 'inactive', 'blocked') DEFAULT 'active',
+    `created_by` INT UNSIGNED NULL,
+    `deleted_at` TIMESTAMP NULL DEFAULT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_patient_code` (`patient_code`),
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_phone` (`phone`),
+    INDEX `idx_status` (`status`),
+    INDEX `idx_deleted_at` (`deleted_at`),
+    INDEX `idx_created_by` (`created_by`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

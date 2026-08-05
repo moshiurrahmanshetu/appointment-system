@@ -76,6 +76,75 @@ if (!function_exists('auth')) {
     }
 }
 
+if (!function_exists('user')) {
+    function user()
+    {
+        return Session::get('user');
+    }
+}
+
+if (!function_exists('hasRole')) {
+    function hasRole($role)
+    {
+        $user = auth();
+        if (!$user) {
+            return false;
+        }
+        
+        // Load role dynamically from database
+        $db = \App\Core\Database::getInstance();
+        $sql = "SELECT r.slug FROM roles r 
+                INNER JOIN users u ON u.role_id = r.id 
+                WHERE u.id = :user_id";
+        $result = $db->fetch($sql, ['user_id' => $user['id']]);
+        
+        if (!$result) {
+            return false;
+        }
+        
+        // Check if user has the role (support both string and array)
+        if (is_array($role)) {
+            return in_array($result['slug'], $role);
+        }
+        
+        return $result['slug'] === $role;
+    }
+}
+
+if (!function_exists('can')) {
+    function can($permission)
+    {
+        $user = auth();
+        if (!$user) {
+            return false;
+        }
+        
+        // Load user permissions dynamically from database
+        $db = \App\Core\Database::getInstance();
+        $sql = "SELECT p.slug FROM permissions p 
+                INNER JOIN role_permissions rp ON rp.permission_id = p.id
+                INNER JOIN users u ON u.role_id = rp.role_id
+                WHERE u.id = :user_id";
+        $permissions = $db->fetchAll($sql, ['user_id' => $user['id']]);
+        
+        $permissionSlugs = array_column($permissions, 'slug');
+        
+        // Check if user has the permission (support both string and array)
+        if (is_array($permission)) {
+            return !empty(array_intersect($permission, $permissionSlugs));
+        }
+        
+        return in_array($permission, $permissionSlugs);
+    }
+}
+
+if (!function_exists('cannot')) {
+    function cannot($permission)
+    {
+        return !can($permission);
+    }
+}
+
 if (!function_exists('guest')) {
     function guest()
     {
@@ -86,8 +155,8 @@ if (!function_exists('guest')) {
 if (!function_exists('asset')) {
     function asset($path)
     {
-        $appUrl = config('url');
-        return rtrim($appUrl, '/') . '/assets/' . ltrim($path, '/');
+        $assetUrl = config('asset_url');
+        return rtrim($assetUrl, '/') . '/public/assets/' . ltrim($path, '/');
     }
 }
 

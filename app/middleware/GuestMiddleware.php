@@ -10,10 +10,7 @@ class GuestMiddleware
     public function handle()
     {
         if (Session::has('user')) {
-            $app = Application::getInstance();
-            $appUrl = $app->getConfig('url');
-            header('Location: ' . rtrim($appUrl, '/') . '/dashboard');
-            exit;
+            redirect('/dashboard');
             return false;
         }
         

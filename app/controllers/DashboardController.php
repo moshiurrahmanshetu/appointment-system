@@ -10,6 +10,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Check permission
+        if (!can('dashboard.view')) {
+            abort(403, 'You do not have permission to access the dashboard.');
+        }
+        
         $user = Session::get('user');
         
         $data = [
