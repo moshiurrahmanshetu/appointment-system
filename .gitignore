@@ -1,0 +1,33 @@
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Composer (if used later)
+/vendor/
+
+# Node modules (if used later)
+/node_modules/
+
+# Storage
+storage/logs/*
+storage/cache/*
+storage/sessions/*
+storage/uploads/*
+!storage/.gitkeep
+
+# Backups
+*.bak
+*.backup
