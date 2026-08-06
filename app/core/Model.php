@@ -96,6 +96,19 @@ class Model
         return $result['count'] > 0;
     }
     
+    public function count($where = null)
+    {
+        $sql = "SELECT COUNT(*) as count FROM {$this->table}";
+        $params = [];
+        
+        if ($where) {
+            $sql .= " WHERE " . $where;
+        }
+        
+        $result = $this->db->fetch($sql, $params);
+        return $result['count'];
+    }
+    
     protected function filterFillable($data)
     {
         if (empty($this->fillable)) {

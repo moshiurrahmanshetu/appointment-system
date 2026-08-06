@@ -58,5 +58,26 @@ $router->get('/patients/restore/{id}', 'PatientController@restore', [AuthMiddlew
 $router->get('/patients/status/{id}', 'PatientController@updateStatus', [AuthMiddleware::class, new PermissionMiddleware('patients.status')]);
 $router->get('/patients/slip/{id}', 'PatientController@slip', [AuthMiddleware::class, new PermissionMiddleware('patients.view')]);
 
+// Appointment Management routes with permission checks
+$router->get('/appointments', 'AppointmentController@index', [AuthMiddleware::class, new PermissionMiddleware('appointments.view')]);
+$router->get('/appointments/create', 'AppointmentController@create', [AuthMiddleware::class, new PermissionMiddleware('appointments.create')]);
+$router->post('/appointments', 'AppointmentController@store', [AuthMiddleware::class, new PermissionMiddleware('appointments.create')]);
+$router->get('/appointments/show/{id}', 'AppointmentController@show', [AuthMiddleware::class, new PermissionMiddleware('appointments.view')]);
+$router->get('/appointments/edit/{id}', 'AppointmentController@edit', [AuthMiddleware::class, new PermissionMiddleware('appointments.edit')]);
+$router->post('/appointments/update/{id}', 'AppointmentController@update', [AuthMiddleware::class, new PermissionMiddleware('appointments.edit')]);
+$router->get('/appointments/delete/{id}', 'AppointmentController@delete', [AuthMiddleware::class, new PermissionMiddleware('appointments.delete')]);
+$router->get('/appointments/restore/{id}', 'AppointmentController@restore', [AuthMiddleware::class, new PermissionMiddleware('appointments.restore')]);
+$router->get('/appointments/status/{id}', 'AppointmentController@updateStatus', [AuthMiddleware::class, new PermissionMiddleware('appointments.edit')]);
+
+// Queue Management routes with permission checks
+$router->get('/queue', 'QueueController@index', [AuthMiddleware::class, new PermissionMiddleware('queue.view')]);
+$router->post('/queue/call-next', 'QueueController@callNext', [AuthMiddleware::class, new PermissionMiddleware('queue.call')]);
+$router->get('/queue/call/{id}', 'QueueController@callSpecific', [AuthMiddleware::class, new PermissionMiddleware('queue.call')]);
+$router->get('/queue/start/{id}', 'QueueController@startConsultation', [AuthMiddleware::class, new PermissionMiddleware('queue.manage')]);
+$router->get('/queue/complete/{id}', 'QueueController@completeQueue', [AuthMiddleware::class, new PermissionMiddleware('queue.complete')]);
+$router->get('/queue/skip/{id}', 'QueueController@skipQueue', [AuthMiddleware::class, new PermissionMiddleware('queue.skip')]);
+$router->get('/queue/cancel/{id}', 'QueueController@cancelQueue', [AuthMiddleware::class, new PermissionMiddleware('queue.cancel')]);
+$router->get('/queue/show/{id}', 'QueueController@show', [AuthMiddleware::class, new PermissionMiddleware('queue.view')]);
+
 // Dispatch the router
 $router->dispatch();

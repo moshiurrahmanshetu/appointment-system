@@ -1,0 +1,25 @@
+-- Queue table for Phase 6 Queue Management
+CREATE TABLE IF NOT EXISTS `queue` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `appointment_id` INT UNSIGNED NOT NULL UNIQUE,
+    `doctor_id` INT UNSIGNED NOT NULL,
+    `queue_date` DATE NOT NULL,
+    `token_no` VARCHAR(10) NOT NULL,
+    `queue_status` ENUM('Waiting', 'Called', 'With Doctor', 'Completed', 'Skipped', 'Cancelled') NOT NULL DEFAULT 'Waiting',
+    `called_at` TIMESTAMP NULL DEFAULT NULL,
+    `started_at` TIMESTAMP NULL DEFAULT NULL,
+    `completed_at` TIMESTAMP NULL DEFAULT NULL,
+    `remarks` TEXT NULL,
+    `created_by` INT UNSIGNED NULL,
+    `updated_by` INT UNSIGNED NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_appointment_id` (`appointment_id`),
+    INDEX `idx_doctor_id` (`doctor_id`),
+    INDEX `idx_queue_date` (`queue_date`),
+    INDEX `idx_queue_status` (`queue_status`),
+    INDEX `idx_token_no` (`token_no`),
+    INDEX `idx_doctor_date_token` (`doctor_id`, `queue_date`, `token_no`),
+    INDEX `idx_doctor_date_status` (`doctor_id`, `queue_date`, `queue_status`),
+    INDEX `idx_created_by` (`created_by`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

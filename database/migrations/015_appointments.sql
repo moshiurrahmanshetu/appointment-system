@@ -1,0 +1,27 @@
+-- Appointments table for Phase 5 Appointment Management
+CREATE TABLE IF NOT EXISTS `appointments` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `appointment_no` VARCHAR(20) NOT NULL UNIQUE,
+    `patient_id` INT UNSIGNED NOT NULL,
+    `doctor_id` INT UNSIGNED NOT NULL,
+    `appointment_date` DATE NOT NULL,
+    `appointment_time` TIME NOT NULL,
+    `serial_no` INT UNSIGNED NOT NULL DEFAULT 1,
+    `visit_type` ENUM('New', 'Follow-up') NOT NULL DEFAULT 'New',
+    `priority` ENUM('Normal', 'Urgent', 'Emergency') NOT NULL DEFAULT 'Normal',
+    `status` ENUM('Pending', 'Confirmed', 'Checked In', 'In Queue', 'With Doctor', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Pending',
+    `remarks` TEXT NULL,
+    `created_by` INT UNSIGNED NULL,
+    `updated_by` INT UNSIGNED NULL,
+    `deleted_at` TIMESTAMP NULL DEFAULT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_appointment_no` (`appointment_no`),
+    INDEX `idx_patient_id` (`patient_id`),
+    INDEX `idx_doctor_id` (`doctor_id`),
+    INDEX `idx_appointment_date` (`appointment_date`),
+    INDEX `idx_status` (`status`),
+    INDEX `idx_deleted_at` (`deleted_at`),
+    INDEX `idx_created_by` (`created_by`),
+    INDEX `idx_doctor_date_serial` (`doctor_id`, `appointment_date`, `serial_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

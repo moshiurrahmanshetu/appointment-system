@@ -49,8 +49,8 @@
             
             <?php if (can('appointments.view')): ?>
             <li class="nav-item">
-                <a class="nav-link" 
-                   href="#" 
+                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/appointments') !== false ? 'active' : '' ?>" 
+                   href="<?= url('appointments') ?>" 
                    data-bs-toggle="tooltip" 
                    data-bs-placement="right" 
                    title="Appointments">
@@ -62,8 +62,8 @@
             
             <?php if (can('queue.view')): ?>
             <li class="nav-item">
-                <a class="nav-link" 
-                   href="#" 
+                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/queue') !== false ? 'active' : '' ?>" 
+                   href="<?= url('queue') ?>" 
                    data-bs-toggle="tooltip" 
                    data-bs-placement="right" 
                    title="Queue">

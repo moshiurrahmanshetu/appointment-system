@@ -257,4 +257,17 @@ class Patient extends Model
         
         return $this->db->fetch($sql, ['id' => $patientId]);
     }
+    
+    public function count($where = null)
+    {
+        $sql = "SELECT COUNT(*) as count FROM {$this->table}";
+        $params = [];
+        
+        if ($where) {
+            $sql .= " WHERE " . $where;
+        }
+        
+        $result = $this->db->fetch($sql, $params);
+        return $result['count'];
+    }
 }
