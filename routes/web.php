@@ -79,5 +79,15 @@ $router->get('/queue/skip/{id}', 'QueueController@skipQueue', [AuthMiddleware::c
 $router->get('/queue/cancel/{id}', 'QueueController@cancelQueue', [AuthMiddleware::class, new PermissionMiddleware('queue.cancel')]);
 $router->get('/queue/show/{id}', 'QueueController@show', [AuthMiddleware::class, new PermissionMiddleware('queue.view')]);
 
+// Consultation Management routes with permission checks
+$router->get('/consultations', 'ConsultationController@index', [AuthMiddleware::class, new PermissionMiddleware('consultation.view')]);
+$router->get('/consultations/create', 'ConsultationController@create', [AuthMiddleware::class, new PermissionMiddleware('consultation.create')]);
+$router->post('/consultations', 'ConsultationController@store', [AuthMiddleware::class, new PermissionMiddleware('consultation.create')]);
+$router->get('/consultations/show/{id}', 'ConsultationController@show', [AuthMiddleware::class, new PermissionMiddleware('consultation.view')]);
+$router->get('/consultations/edit/{id}', 'ConsultationController@edit', [AuthMiddleware::class, new PermissionMiddleware('consultation.edit')]);
+$router->post('/consultations/update/{id}', 'ConsultationController@update', [AuthMiddleware::class, new PermissionMiddleware('consultation.edit')]);
+$router->get('/consultations/delete/{id}', 'ConsultationController@delete', [AuthMiddleware::class, new PermissionMiddleware('consultation.delete')]);
+$router->get('/consultations/complete/{id}', 'ConsultationController@complete', [AuthMiddleware::class, new PermissionMiddleware('consultation.complete')]);
+
 // Dispatch the router
 $router->dispatch();

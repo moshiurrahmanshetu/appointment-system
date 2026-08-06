@@ -201,7 +201,7 @@ class QueueController extends Controller
             abort(403, 'You can only manage your own queue.');
         }
         
-        // Start consultation
+        // Start consultation - update queue status
         $result = $this->queueModel->startConsultation($id);
         
         if ($result) {
@@ -215,12 +215,12 @@ class QueueController extends Controller
                 ['queue_status' => 'With Doctor', 'started_at' => date('Y-m-d H:i:s')]
             );
             
-            Session::setFlash('success', 'Consultation started for token ' . $queue['token_no']);
+            // Redirect to consultation creation page
+            redirect('/consultations/create?queue_id=' . $id);
         } else {
             Session::setFlash('error', 'Could not start consultation. Invalid status transition.');
+            redirect('/queue');
         }
-        
-        redirect('/queue');
     }
     
     public function completeQueue($id)

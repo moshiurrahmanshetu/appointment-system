@@ -131,6 +131,51 @@
 </div>
 <?php endif; ?>
 
+<!-- Consultation Stats Row -->
+<?php if (can('consultation.view')): ?>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card border-info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title text-info">Today's Consultations</h5>
+                        <h3 class="display-6 fw-bold"><?= $consultationStats['today_total'] ?? 0 ?></h3>
+                    </div>
+                    <i class="bi bi-clipboard2-pulse text-info fs-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title text-success">Completed Today</h5>
+                        <h3 class="display-6 fw-bold"><?= $consultationStats['completed'] ?? 0 ?></h3>
+                    </div>
+                    <i class="bi bi-check-circle text-success fs-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title text-warning">Follow-up Today</h5>
+                        <h3 class="display-6 fw-bold"><?= $consultationStats['follow_up_today'] ?? 0 ?></h3>
+                    </div>
+                    <i class="bi bi-arrow-repeat text-warning fs-2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="row">
     <div class="col-md-8 mb-4">
         <div class="card">
@@ -168,6 +213,12 @@
                     <?php if (can('queue.view')): ?>
                     <a href="<?= url('queue') ?>" class="btn btn-outline-warning">
                         <i class="bi bi-list-ol me-2"></i>View Queue
+                    </a>
+                    <?php endif; ?>
+                    
+                    <?php if (can('consultation.view')): ?>
+                    <a href="<?= url('consultations') ?>" class="btn btn-outline-info">
+                        <i class="bi bi-clipboard2-pulse me-2"></i>View Consultations
                     </a>
                     <?php endif; ?>
                     

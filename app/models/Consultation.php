@@ -307,12 +307,12 @@ class Consultation extends Model
         $sql = "SELECT 
                 COUNT(CASE WHEN consultation_status = 'Draft' THEN 1 END) as draft,
                 COUNT(CASE WHEN consultation_status = 'Completed' THEN 1 END) as completed,
-                COUNT(CASE WHEN DATE(created_at) = :today THEN 1 END) as today_total,
-                COUNT(CASE WHEN follow_up_required = 'Yes' AND follow_up_date = :today THEN 1 END) as follow_up_today
+                COUNT(CASE WHEN DATE(created_at) = :today_date THEN 1 END) as today_total,
+                COUNT(CASE WHEN follow_up_required = 'Yes' AND follow_up_date = :followup_date THEN 1 END) as follow_up_today
                 FROM consultations 
                 WHERE deleted_at IS NULL";
         
-        $params = ['today' => $today];
+        $params = ['today_date' => $today, 'followup_date' => $today];
         
         if ($doctorId) {
             $sql .= " AND doctor_id = :doctor_id";

@@ -73,6 +73,19 @@
             </li>
             <?php endif; ?>
             
+            <?php if (can('consultation.view')): ?>
+            <li class="nav-item">
+                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/consultations') !== false ? 'active' : '' ?>" 
+                   href="<?= url('consultations') ?>" 
+                   data-bs-toggle="tooltip" 
+                   data-bs-placement="right" 
+                   title="Consultations">
+                    <i class="bi bi-clipboard2-pulse nav-icon"></i>
+                    <span class="nav-text">Consultations</span>
+                </a>
+            </li>
+            <?php endif; ?>
+            
             <?php if (can('users.view')): ?>
             <li class="nav-item">
                 <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/users') !== false ? 'active' : '' ?>" 
