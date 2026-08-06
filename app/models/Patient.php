@@ -46,8 +46,13 @@ class Patient extends Model
     public function generatePatientUserId()
     {
         do {
-            // Generate random user ID like PTX84K92
-            $userId = 'PT' . strtoupper(substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 1)) . strtoupper(substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 5)) . substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 2);
+            // Generate random user ID like PTA83KQ9
+            // Format: PT + 1 letter + 5 alphanumeric + 1 alphanumeric
+            $chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $userId = 'PT' 
+                    . strtoupper(substr(str_shuffle($chars), 0, 1))
+                    . strtoupper(substr(str_shuffle($chars), 0, 5))
+                    . strtoupper(substr(str_shuffle($chars), 0, 1));
         } while ($this->checkUserIdAvailability($userId));
         
         return $userId;
@@ -110,7 +115,7 @@ class Patient extends Model
         
         // Search condition
         if (!empty($searchTerm)) {
-            $sql .= " AND (p.patient_code LIKE :search OR p.full_name LIKE :search OR p.phone LIKE :search)";
+            $sql .= " AND (p.patient_code LIKE :search OR p.full_name LIKE :search OR p.phone LIKE :search OR u.user_id LIKE :search)";
             $params['search'] = '%' . $searchTerm . '%';
         }
         
@@ -138,7 +143,9 @@ class Patient extends Model
         // Disable linked user account if exists
         if ($patient && $patient['user_id']) {
             $userModel = new User();
-            $userModel->updateStatus($patient['user_id'], 'inactive');
+            $userModel->update($patient['user_id'], [
+                'status' => 'inactive'
+            ]);
         }
         
         return $result;
@@ -157,7 +164,9 @@ class Patient extends Model
         // Enable linked user account if exists
         if ($patient && $patient['user_id']) {
             $userModel = new User();
-            $userModel->updateStatus($patient['user_id'], 'active');
+            $userModel->update($patient['user_id'], [
+                'status' => 'active'
+            ]);
         }
         
         return $result;
@@ -176,7 +185,9 @@ class Patient extends Model
         // Update linked user account status if exists
         if ($patient && $patient['user_id']) {
             $userModel = new User();
-            $userModel->updateStatus($patient['user_id'], $status);
+            $userModel->update($patient['user_id'], [
+                'status' => $status
+            ]);
         }
         
         return $result;
@@ -196,7 +207,14 @@ class Patient extends Model
     
     public function checkPhoneAvailability($phone, $excludeId = null)
     {
-        return !$this->exists('phone', $phone, $excludeId);
+        // Check in patients table
+        if (!$this->exists('phone', $phone, $excludeId)) {
+            return false;
+        }
+        
+        // Also check in users table to prevent duplicate phone numbers
+        $userModel = new User();
+        return $userModel->checkPhoneAvailability($phone);
     }
     
     public function checkUserIdAvailability($userId)
@@ -217,5 +235,26 @@ class Patient extends Model
         return $this->update($patientId, [
             'user_id' => null
         ]);
+    }
+    
+    public function getLinkedUser($patientId)
+    {
+        $patient = $this->find($patientId);
+        if (!$patient || !$patient['user_id']) {
+            return null;
+        }
+        
+        $userModel = new User();
+        return $userModel->find($patient['user_id']);
+    }
+    
+    public function getPatientWithUser($patientId)
+    {
+        $sql = "SELECT p.*, u.user_id as login_id, u.status as account_status 
+                FROM patients p 
+                LEFT JOIN users u ON p.user_id = u.id 
+                WHERE p.id = :id";
+        
+        return $this->db->fetch($sql, ['id' => $patientId]);
     }
 }

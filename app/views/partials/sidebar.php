@@ -36,8 +36,8 @@
             
             <?php if (can('patients.view')): ?>
             <li class="nav-item">
-                <a class="nav-link" 
-                   href="#" 
+                <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/patients') !== false ? 'active' : '' ?>" 
+                   href="<?= url('patients') ?>" 
                    data-bs-toggle="tooltip" 
                    data-bs-placement="right" 
                    title="Patients">

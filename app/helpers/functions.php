@@ -155,8 +155,7 @@ if (!function_exists('guest')) {
 if (!function_exists('asset')) {
     function asset($path)
     {
-        $assetUrl = config('asset_url');
-        return rtrim($assetUrl, '/') . '/public/assets/' . ltrim($path, '/');
+        return config('url') . '/assets/' . ltrim($path, '/');
     }
 }
 

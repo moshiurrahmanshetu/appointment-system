@@ -28,6 +28,11 @@ class Application
             return $this->config;
         }
         
+        // Dynamically detect URL if not set
+        if ($key === 'url' && empty($this->config['url'])) {
+            $this->config['url'] = $this->detectBaseUrl();
+        }
+        
         if (strpos($key, '.') !== false) {
             $keys = explode('.', $key);
             $value = $this->config;
@@ -44,6 +49,44 @@ class Application
         }
         
         return $this->config[$key] ?? null;
+    }
+    
+    private function detectBaseUrl()
+    {
+        // For CLI or when running tests, return a default
+        if (php_sapi_name() === 'cli') {
+            return 'http://localhost:8080';
+        }
+        
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $port = $_SERVER['SERVER_PORT'] ?? '80';
+        
+        // Include port if not standard HTTP/HTTPS ports
+        if (($protocol === 'http' && $port != '80') || ($protocol === 'https' && $port != '443')) {
+            $host .= ':' . $port;
+        }
+        
+        // The script is in public/index.php, so we need the path up to public
+        // SCRIPT_NAME will be something like /appointment-system/public/index.php
+        // We want /appointment-system/public
+        $scriptName = dirname($_SERVER['SCRIPT_NAME']);
+        
+        // Fix for Windows paths - ensure web path format
+        $scriptName = str_replace('\\', '/', $scriptName);
+        
+        // Remove duplicate slashes
+        $scriptName = preg_replace('/\/+/', '/', $scriptName);
+        
+        // Ensure it doesn't end with a slash
+        $scriptName = rtrim($scriptName, '/');
+        
+        // If scriptName is empty or just '/', we're at root
+        if (empty($scriptName) || $scriptName === '.') {
+            $scriptName = '';
+        }
+        
+        return $protocol . '://' . $host . $scriptName;
     }
     
     private function setTimezone()

@@ -15,7 +15,7 @@ class PatientController extends Controller
     private $patientModel;
     private $userModel;
     private $auditModel;
-    private $db;
+    protected $db;
     
     public function __construct()
     {
@@ -132,54 +132,80 @@ class PatientController extends Controller
         $photoPath = null;
         if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
             $photoPath = $this->uploadPhoto($_FILES['photo']);
+            if (!$photoPath) {
+                Session::setFlash('error', 'Photo upload failed. Please try again.');
+                set_old($this->only(['full_name', 'phone', 'gender', 'dob', 'blood_group', 'address', 'emergency_contact', 'emergency_phone']));
+                back();
+            }
         }
         
-        // Create patient record
-        $patientData = [
-            'patient_code' => $patientCode,
-            'full_name' => $this->input('full_name'),
-            'phone' => $phone,
-            'gender' => $this->input('gender'),
-            'dob' => $this->input('dob'),
-            'blood_group' => $this->input('blood_group'),
-            'address' => $this->input('address'),
-            'emergency_contact' => $this->input('emergency_contact'),
-            'emergency_phone' => $this->input('emergency_phone'),
-            'photo' => $photoPath,
-            'status' => $this->input('status', 'active'),
-            'created_by' => $currentUser['id']
-        ];
+        // Start database transaction
+        $this->db->beginTransaction();
         
-        $patientId = $this->patientModel->create($patientData);
-        
-        // Create linked user account
-        $userData = [
-            'user_id' => $patientUserId,
-            'password' => $password,
-            'role_id' => $patientRole['id'],
-            'full_name' => $this->input('full_name'),
-            'phone' => $phone,
-            'status' => $this->input('status', 'active'),
-            'created_by' => $currentUser['id']
-        ];
-        
-        $userId = $this->userModel->create($userData);
-        
-        // Link user account to patient
-        $this->patientModel->linkUserAccount($patientId, $userId);
-        
-        // Log audit
-        $this->auditModel->log(
-            $currentUser['id'],
-            'patient_created',
-            'Patient',
-            $patientId,
-            null,
-            array_merge($patientData, ['user_id' => $userId, 'login_id' => $patientUserId])
-        );
-        
-        Session::setFlash('success', 'Patient created successfully. Login ID: ' . $patientUserId . ', Password: ' . $phone);
-        redirect('/patients');
+        try {
+            // Create patient record
+            $patientData = [
+                'patient_code' => $patientCode,
+                'full_name' => $this->input('full_name'),
+                'phone' => $phone,
+                'gender' => $this->input('gender'),
+                'dob' => $this->input('dob'),
+                'blood_group' => $this->input('blood_group'),
+                'address' => $this->input('address'),
+                'emergency_contact' => $this->input('emergency_contact'),
+                'emergency_phone' => $this->input('emergency_phone'),
+                'photo' => $photoPath,
+                'status' => $this->input('status', 'active'),
+                'created_by' => $currentUser['id']
+            ];
+            
+            $patientId = $this->patientModel->create($patientData);
+            
+            // Create linked user account
+            $userData = [
+                'user_id' => $patientUserId,
+                'password' => $password,
+                'role_id' => $patientRole['id'],
+                'full_name' => $this->input('full_name'),
+                'phone' => $phone,
+                'status' => $this->input('status', 'active'),
+                'created_by' => $currentUser['id']
+            ];
+            
+            $userId = $this->userModel->create($userData);
+            
+            // Link user account to patient
+            $this->patientModel->linkUserAccount($patientId, $userId);
+            
+            // Log audit
+            $this->auditModel->log(
+                $currentUser['id'],
+                'patient_created',
+                'Patient',
+                $patientId,
+                null,
+                array_merge($patientData, ['user_id' => $userId, 'login_id' => $patientUserId])
+            );
+            
+            // Commit transaction
+            $this->db->commit();
+            
+            Session::setFlash('success', 'Patient created successfully. Login ID: ' . $patientUserId . ', Password: ' . $phone);
+            redirect('/patients/slip/' . $patientId);
+            
+        } catch (\Exception $e) {
+            // Rollback transaction on error
+            $this->db->rollback();
+            
+            // Delete uploaded photo if exists
+            if ($photoPath && file_exists(__DIR__ . '/../../public/assets/' . $photoPath)) {
+                unlink(__DIR__ . '/../../public/assets/' . $photoPath);
+            }
+            
+            Session::setFlash('error', 'Failed to create patient. Please try again.');
+            set_old($this->only(['full_name', 'phone', 'gender', 'dob', 'blood_group', 'address', 'emergency_contact', 'emergency_phone']));
+            back();
+        }
     }
     
     public function show($id)
@@ -189,7 +215,7 @@ class PatientController extends Controller
             abort(403, 'You do not have permission to view patients.');
         }
         
-        $patient = $this->patientModel->find($id);
+        $patient = $this->patientModel->getPatientWithUser($id);
         if (!$patient || $patient['deleted_at']) {
             abort(404, 'Patient not found.');
         }
@@ -213,7 +239,7 @@ class PatientController extends Controller
             abort(403, 'You do not have permission to edit patients.');
         }
         
-        $patient = $this->patientModel->find($id);
+        $patient = $this->patientModel->getPatientWithUser($id);
         if (!$patient || $patient['deleted_at']) {
             abort(404, 'Patient not found.');
         }
@@ -242,7 +268,7 @@ class PatientController extends Controller
         
         $currentUser = Session::get('user');
         
-        $patient = $this->patientModel->find($id);
+        $patient = $this->patientModel->getPatientWithUser($id);
         if (!$patient || $patient['deleted_at']) {
             abort(404, 'Patient not found.');
         }
@@ -332,7 +358,7 @@ class PatientController extends Controller
         );
         
         Session::setFlash('success', 'Patient updated successfully.');
-        redirect('/patients');
+        redirect('/patients/show/' . $id);
     }
     
     public function delete($id)
@@ -342,7 +368,7 @@ class PatientController extends Controller
             abort(403, 'You do not have permission to delete patients.');
         }
         
-        $patient = $this->patientModel->find($id);
+        $patient = $this->patientModel->getPatientWithUser($id);
         if (!$patient || $patient['deleted_at']) {
             abort(404, 'Patient not found.');
         }
@@ -371,7 +397,7 @@ class PatientController extends Controller
             abort(403, 'You do not have permission to restore patients.');
         }
         
-        $patient = $this->patientModel->find($id);
+        $patient = $this->patientModel->getPatientWithUser($id);
         if (!$patient || !$patient['deleted_at']) {
             abort(404, 'Patient not found or not deleted.');
         }
@@ -400,7 +426,7 @@ class PatientController extends Controller
             abort(403, 'You do not have permission to change patient status.');
         }
         
-        $patient = $this->patientModel->find($id);
+        $patient = $this->patientModel->getPatientWithUser($id);
         if (!$patient || $patient['deleted_at']) {
             abort(404, 'Patient not found.');
         }
@@ -435,7 +461,7 @@ class PatientController extends Controller
             abort(403, 'You do not have permission to view patients.');
         }
         
-        $patient = $this->patientModel->find($id);
+        $patient = $this->patientModel->getPatientWithUser($id);
         if (!$patient || $patient['deleted_at']) {
             abort(404, 'Patient not found.');
         }

@@ -1,15 +1,9 @@
 <?php
 
-// Detect base URL dynamically
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$scriptName = dirname($_SERVER['SCRIPT_NAME']);
-$baseUrl = $protocol . '://' . $host . $scriptName;
-
 return [
     'name' => 'Appointment Queue System',
     'version' => '1.0.0',
-    'url' => getenv('APP_URL') ?: $baseUrl,
+    'url' => getenv('APP_URL') ?: null, // Will be detected dynamically
     'timezone' => 'UTC',
     'locale' => 'en',
     

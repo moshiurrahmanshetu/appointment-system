@@ -46,5 +46,17 @@ $router->get('/users/delete/{id}', 'UserController@delete', [AuthMiddleware::cla
 $router->get('/users/restore/{id}', 'UserController@restore', [AuthMiddleware::class, new PermissionMiddleware('users.restore')]);
 $router->get('/users/status/{id}', 'UserController@updateStatus', [AuthMiddleware::class, new PermissionMiddleware('users.status')]);
 
+// Patient Management routes with permission checks
+$router->get('/patients', 'PatientController@index', [AuthMiddleware::class, new PermissionMiddleware('patients.view')]);
+$router->get('/patients/create', 'PatientController@create', [AuthMiddleware::class, new PermissionMiddleware('patients.create')]);
+$router->post('/patients', 'PatientController@store', [AuthMiddleware::class, new PermissionMiddleware('patients.create')]);
+$router->get('/patients/show/{id}', 'PatientController@show', [AuthMiddleware::class, new PermissionMiddleware('patients.view')]);
+$router->get('/patients/edit/{id}', 'PatientController@edit', [AuthMiddleware::class, new PermissionMiddleware('patients.edit')]);
+$router->post('/patients/update/{id}', 'PatientController@update', [AuthMiddleware::class, new PermissionMiddleware('patients.edit')]);
+$router->get('/patients/delete/{id}', 'PatientController@delete', [AuthMiddleware::class, new PermissionMiddleware('patients.delete')]);
+$router->get('/patients/restore/{id}', 'PatientController@restore', [AuthMiddleware::class, new PermissionMiddleware('patients.restore')]);
+$router->get('/patients/status/{id}', 'PatientController@updateStatus', [AuthMiddleware::class, new PermissionMiddleware('patients.status')]);
+$router->get('/patients/slip/{id}', 'PatientController@slip', [AuthMiddleware::class, new PermissionMiddleware('patients.view')]);
+
 // Dispatch the router
 $router->dispatch();
